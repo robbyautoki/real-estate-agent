@@ -1,0 +1,843 @@
+{
+  "name": "Video Gen",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        96
+      ],
+      "id": "bf95a571-3c2c-4fae-9223-35a9575a3446",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appgCVDypLe32DtdU",
+          "mode": "list",
+          "cachedResultName": "RealEstate Video Generation",
+          "cachedResultUrl": "https://airtable.com/appgCVDypLe32DtdU"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblk7jzTz1pkL7uQc",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appgCVDypLe32DtdU/tblk7jzTz1pkL7uQc"
+        },
+        "filterByFormula": "NOT({Started})",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        96,
+        96
+      ],
+      "id": "2d3bd8b0-8267-471b-b4dd-1be96a0d9a8a",
+      "name": "Get Record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "e3vVABGEtnfTVkga",
+          "name": "auto.ki"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04d96657-4b01-4d8a-aa86-8db2268259b8",
+              "name": "id",
+              "value": "={{$('Get Record').item.json.id}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        992,
+        -112
+      ],
+      "id": "9bfcb9e5-3cec-48eb-95db-551ca812cd9d",
+      "name": "Set ID"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "lbAG8Jsj1DL6Sn0Z",
+          "mode": "list",
+          "cachedResultName": "IMAGE ENHANCER BFL"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1184,
+        -112
+      ],
+      "id": "80104bab-4da9-4f1c-a4da-f170410f9aec",
+      "name": "Start Image Enhancer"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "871e97e1-915c-4cc2-a13b-2183556abb4a",
+              "leftValue": "={{ $json.Images }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        96
+      ],
+      "id": "34adc08b-9871-4834-afd5-b971735b43e1",
+      "name": "Images?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "874de5ec-c768-40c3-a5e8-d356f95f9870",
+              "leftValue": "={{ $json['Image Enhancer Checked'] }}",
+              "rightValue": "Not started",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        320
+      ],
+      "id": "86a49988-b61a-4405-9151-a6379c425504",
+      "name": "Image Enhancer Not Checked?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "386050a4-c83e-4ecf-8aad-2505a28de89a",
+              "leftValue": "={{$('Get Record').item.json['Image Upscaler Checked']}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        336
+      ],
+      "id": "29caaab0-e268-4018-91af-a04f322fdc88",
+      "name": "Image Upscaled Not Checked?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04d96657-4b01-4d8a-aa86-8db2268259b8",
+              "name": "id",
+              "value": "={{$('Get Record').item.json.id}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        -96
+      ],
+      "id": "ff1d3e5c-797d-4fe6-9fc6-71ac702a6e31",
+      "name": "Set ID1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "VtRLqXTbEerj1G5E",
+          "mode": "list",
+          "cachedResultName": "IMAGE UPSCALINGB BFL"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        -96
+      ],
+      "id": "57bb2730-bb34-4661-84c8-b72669301dbb",
+      "name": "Start Upscale Images"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "47e2d87f-b541-46fc-a2f2-70d7bafe5f84",
+              "leftValue": "={{ $json['Video Generation Checked'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        352
+      ],
+      "id": "ca738b77-73c2-4545-aabf-342e3fa0afb3",
+      "name": "Video Generation Not Checked?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04d96657-4b01-4d8a-aa86-8db2268259b8",
+              "name": "id",
+              "value": "={{$('Get Record').item.json.id}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2160,
+        -96
+      ],
+      "id": "709ed261-8645-4ac6-bcc5-56f402f374a7",
+      "name": "Set ID2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ziLwev1c4BpGQ8fF",
+          "mode": "list",
+          "cachedResultName": "VIDEO GENERATION BFL"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2368,
+        -96
+      ],
+      "id": "694067d8-0fd1-4c71-b511-5be731788616",
+      "name": "Start Video Generation"
+    },
+    {
+      "parameters": {
+        "content": "## BlackorestLas Image Enancer",
+        "height": 80,
+        "width": 432,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -256
+      ],
+      "id": "4e74b0ad-218d-4520-aadc-68762f3f0dc7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Wavespeed AI Image Enhancer",
+        "height": 80,
+        "width": 432,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        -256
+      ],
+      "id": "87428213-748a-41bc-9431-c6172eb313cc",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "31a4422e-26f7-4c87-b5e2-609ac69a1b07",
+              "leftValue": "={{ $json['Video Upscaler Checked'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2384,
+        368
+      ],
+      "id": "1765aba3-d430-480f-a39e-f4a7fa76b131",
+      "name": "Video Upscaler Not Checked?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04d96657-4b01-4d8a-aa86-8db2268259b8",
+              "name": "id",
+              "value": "={{$('Get Record').item.json.id}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2752,
+        -96
+      ],
+      "id": "3d5cf340-33dc-4411-9342-f9e02ba9acdf",
+      "name": "Set ID3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "728ef7da-fd26-42ac-9c00-58512ec3c170",
+              "leftValue": "={{ $json['Merge Videos Checked'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2976,
+        368
+      ],
+      "id": "8b9289bb-6b40-484c-8800-c3063863ddfc",
+      "name": "Videos Not Merged & Song"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "OEZHQSanlqoWfWKF",
+          "mode": "list",
+          "cachedResultName": "TOOL - VIDEO UPSCALING"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2960,
+        -96
+      ],
+      "id": "422f9fbd-b02b-4be0-92a6-78ea06e4e995",
+      "name": "Start Video Upscaling"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04d96657-4b01-4d8a-aa86-8db2268259b8",
+              "name": "id",
+              "value": "={{$('Get Record').item.json.id}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3360,
+        320
+      ],
+      "id": "f63364e1-d1f8-4b95-b68d-7c78c6d0d2d3",
+      "name": "Set ID4"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "T9T3XIR6klnkTpWk",
+          "mode": "list",
+          "cachedResultName": "VIDEO MERGE"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3568,
+        320
+      ],
+      "id": "9bc966bb-a21a-49c4-8638-d3893ce3a712",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "content": "## Wavespeed KlingAI Video Generation",
+        "height": 80,
+        "width": 464,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2112,
+        -256
+      ],
+      "id": "48cca5ef-07b0-4e5d-8736-5da34a81fb19",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Wavespeed Video Upscaling",
+        "height": 80,
+        "width": 464,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        -256
+      ],
+      "id": "27685eae-fabe-4e4d-a5ab-f4fa42c56214",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Wavespeed Video Upscaling",
+        "height": 80,
+        "width": 464,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3264,
+        -256
+      ],
+      "id": "ea6fe2bd-cb0b-4100-93ba-5c66c11c6241",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-09-06T16:59:17.003+02:00",
+          "Readable date": "September 6th 2025, 4:59:17 pm",
+          "Readable time": "4:59:17 pm",
+          "Day of week": "Saturday",
+          "Year": "2025",
+          "Month": "September",
+          "Day of month": "06",
+          "Hour": "16",
+          "Minute": "59",
+          "Second": "17",
+          "Timezone": "Europe/Berlin (UTC+02:00)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Record": {
+      "main": [
+        [
+          {
+            "node": "Images?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set ID": {
+      "main": [
+        [
+          {
+            "node": "Start Image Enhancer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Images?": {
+      "main": [
+        [
+          {
+            "node": "Image Enhancer Not Checked?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Enhancer Not Checked?": {
+      "main": [
+        [
+          {
+            "node": "Set ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Image Upscaled Not Checked?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Image Enhancer": {
+      "main": [
+        [
+          {
+            "node": "Image Upscaled Not Checked?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Upscaled Not Checked?": {
+      "main": [
+        [
+          {
+            "node": "Set ID1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video Generation Not Checked?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set ID1": {
+      "main": [
+        [
+          {
+            "node": "Start Upscale Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Upscale Images": {
+      "main": [
+        [
+          {
+            "node": "Video Generation Not Checked?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set ID2": {
+      "main": [
+        [
+          {
+            "node": "Start Video Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Generation Not Checked?": {
+      "main": [
+        [
+          {
+            "node": "Set ID2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video Upscaler Not Checked?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Video Generation": {
+      "main": [
+        [
+          {
+            "node": "Video Upscaler Not Checked?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Upscaler Not Checked?": {
+      "main": [
+        [
+          {
+            "node": "Set ID3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Videos Not Merged & Song",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set ID3": {
+      "main": [
+        [
+          {
+            "node": "Start Video Upscaling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Video Upscaling": {
+      "main": [
+        [
+          {
+            "node": "Videos Not Merged & Song",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Videos Not Merged & Song": {
+      "main": [
+        [
+          {
+            "node": "Set ID4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set ID4": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "97e8d2a5-b3d2-4445-8511-41ee6fb06a8e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f546839f299c51a88e8b3d2832263de6170e7a79249411aa709a3f44463c86d8"
+  },
+  "id": "hFO2BkPTiS04d6Od",
+  "tags": []
+}

@@ -1,0 +1,285 @@
+{
+  "name": "TOOL - IMAGE UPSCALING API",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "image-upscaling",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "72b62938-3064-4c87-81f1-8a2a63de5ea2",
+      "name": "Webhook",
+      "webhookId": "91d26680-154b-4c54-ae12-492e4f6b4868"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/wavespeed-ai/image-upscaler",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer b87de997efe18a618c98a587276e55e2c1b7b5008be19e1e0188f010f01293b8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "creativity",
+              "value": "-2"
+            },
+            {
+              "name": "enable_base64_output",
+              "value": "false"
+            },
+            {
+              "name": "enable_sync_mode",
+              "value": "false"
+            },
+            {
+              "name": "image",
+              "value": "={{ $json.query.url }}"
+            },
+            {
+              "name": "output_format",
+              "value": "png"
+            },
+            {
+              "name": "target_resolution",
+              "value": "4k"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        288,
+        0
+      ],
+      "id": "d0f29075-1a73-4509-a582-cd2822d8d9fa",
+      "name": "Upscaling Images"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Upscaling Images').item.json.data.urls.get }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer b87de997efe18a618c98a587276e55e2c1b7b5008be19e1e0188f010f01293b8"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        496,
+        0
+      ],
+      "id": "8ceff498-235f-43cd-9a24-812e24d000c5",
+      "name": "Get Status"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"image_url\": \"{{ $json.data.outputs[0] }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1088,
+        -96
+      ],
+      "id": "06fe5bc3-1564-4ff6-b0b8-15bd33aeee73",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "490e2c02-d45d-49d0-bd91-317b734511bb",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        0
+      ],
+      "id": "87454886-96ba-4aa7-8d56-58106468ba81",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        256
+      ],
+      "id": "4390741e-2423-4b15-b6cc-82d827ffa058",
+      "name": "Wait",
+      "webhookId": "1e689151-a52f-4da7-8dbb-f8bde85820fa"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.auto.ki",
+            "user-agent": "axios/1.8.3",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "via": "1.1 Caddy",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.auto.ki",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {
+            "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757174400000/9QzJLU_FWcxunM187saLqw/oHBhPQgNDUqeE0qs7CGGUc_ATfiM19cxgFWbDsgKmtNKxI9upTAh2cZeFFDXSz9U1N2IApK7TSOrpaNjiCrqZPzz7aDjWqv73KutRmFqK5ieXQBN1jIf6p7oMbHpzh05SDy6Jv8OjI5r2gxtq_HyyQ/dRRnaYawzDDcQ6oHCG7rmwlszQnCH3f9hGl72jAqVfU"
+          },
+          "body": {},
+          "webhookUrl": "https://n8n.auto.ki/webhook/image-upscaling",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Upscaling Images": [
+      {
+        "json": {
+          "code": 200,
+          "message": "success",
+          "data": {
+            "id": "474e25afe6e449a1a51b8ffc0df90b43",
+            "model": "wavespeed-ai/image-upscaler",
+            "outputs": [],
+            "urls": {
+              "get": "https://api.wavespeed.ai/api/v3/predictions/474e25afe6e449a1a51b8ffc0df90b43/result"
+            },
+            "has_nsfw_contents": [],
+            "status": "created",
+            "created_at": "2025-09-06T12:09:24.439Z",
+            "error": "",
+            "executionTime": 0,
+            "timings": {
+              "inference": 0
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Upscaling Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upscaling Images": {
+      "main": [
+        [
+          {
+            "node": "Get Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Status": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b0f062b8-465e-49f6-b16c-4650be1f5980",
+  "meta": {
+    "instanceId": "f546839f299c51a88e8b3d2832263de6170e7a79249411aa709a3f44463c86d8"
+  },
+  "id": "WXGuYhjxSgEdBkDK",
+  "tags": []
+}

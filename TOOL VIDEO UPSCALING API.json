@@ -1,0 +1,249 @@
+{
+  "name": "TOOL VIDEO UPSCALING API",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "video-upscaling",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1440,
+        32
+      ],
+      "id": "b31b6b62-aee9-4fd5-a09b-dd85850bc484",
+      "name": "Webhook",
+      "webhookId": "91d26680-154b-4c54-ae12-492e4f6b4868"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Upscaling Videos').item.json.data.urls.get }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer b87de997efe18a618c98a587276e55e2c1b7b5008be19e1e0188f010f01293b8"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -944,
+        32
+      ],
+      "id": "63ef6585-2d1b-40c0-8f6f-31a2bab61fc6",
+      "name": "Get Status"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"image_url\": \"{{ $json.data.outputs[0] }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -352,
+        -64
+      ],
+      "id": "31f227b6-9a1b-4dad-85a7-12bade90977c",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "490e2c02-d45d-49d0-bd91-317b734511bb",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -736,
+        32
+      ],
+      "id": "d63edf48-c6dd-4490-96f5-61750ddc2529",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -832,
+        288
+      ],
+      "id": "8128ea20-6943-405b-b4a6-810416869642",
+      "name": "Wait",
+      "webhookId": "1e689151-a52f-4da7-8dbb-f8bde85820fa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/wavespeed-ai/video-upscaler",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer b87de997efe18a618c98a587276e55e2c1b7b5008be19e1e0188f010f01293b8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "copy_audio",
+              "value": "true"
+            },
+            {
+              "name": "target_resolution",
+              "value": "4k"
+            },
+            {
+              "name": "video",
+              "value": "={{ $json.query.url }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1152,
+        32
+      ],
+      "id": "b01a806c-4cf4-4043-b386-b07431695bc9",
+      "name": "Upscaling Videos"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.auto.ki",
+            "user-agent": "axios/1.8.3",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "via": "1.1 Caddy",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.auto.ki",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {
+            "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757174400000/G3so0z4UW7zyKpk2xt9HXA/VTkvOYSbHxTr0QFHBvhF9PZuDzqCMiIMA_hncxTdLd7so-tZIvehoMYgSVDMFVo1rjKeHSOSTfgnblaKErZ36xqlWXN_p3llfEbkpdSiwyttnAM_eGzgESWu4irj7dk6SK8NA8vy8G2zfhIAKIePiw/avsWydTrgWKiZFHeh6iG_9ZPavFaXpsQnuFhLsDtHlg"
+          },
+          "body": {},
+          "webhookUrl": "https://n8n.auto.ki/webhook/video-upscaling",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Upscaling Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Status": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upscaling Videos": {
+      "main": [
+        [
+          {
+            "node": "Get Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "369c6bd7-49ea-41c3-a905-f7912e351431",
+  "meta": {
+    "instanceId": "f546839f299c51a88e8b3d2832263de6170e7a79249411aa709a3f44463c86d8"
+  },
+  "id": "aid51kl97bjh4lLp",
+  "tags": []
+}

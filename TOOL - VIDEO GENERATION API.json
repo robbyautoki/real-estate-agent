@@ -1,0 +1,369 @@
+{
+  "name": "TOOL - VIDEO GENERATION API",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "video-generation",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b0821664-d317-4fef-a7cd-94619170b6c1",
+      "name": "Webhook",
+      "webhookId": "dbea7256-439a-4e64-a3f5-3363fc69afad"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.wavespeed.ai/api/v3/predictions/{{ $json.data.id }}/result",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1248,
+        -144
+      ],
+      "id": "f87af68c-0f56-4cb4-9cb4-bb63cec0c261",
+      "name": "HTTP Request5",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2OSntGz5dp3CQQkJ",
+          "name": "WavespeedAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "162ae7d6-e51f-4457-8173-002b03818742",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1472,
+        -80
+      ],
+      "id": "486b7d68-3311-4a56-bb32-43373d791db0",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        -80
+      ],
+      "id": "b06398bf-cc23-43f0-9167-8ffb06ea66b4",
+      "name": "Wait1",
+      "webhookId": "9d1eab28-a032-4415-affe-331f16d31d4c"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "imageUrls": "={{ $json.query.url }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        272,
+        0
+      ],
+      "id": "3007ae74-d97b-46b7-a477-e34da8ecee14",
+      "name": "Analyze image",
+      "credentials": {
+        "openAiApi": {
+          "id": "9AQYYrY0yYIeV8lc",
+          "name": "robby - auto.ki"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a prompt engineer for Kling AI image-to-video.  \nYour task is to create 4 short cinematic prompts in English based on the image analysis of a property photo.  \n\n# Input  \n•⁠  ⁠Image analysis: {{ $json.content }}  \n\n# Output  \nGenerate 4 simple English prompts. Each must describe a realistic, smooth camera movement of the property photo.  \nThe property must remain exactly as shown in the input image. No elements may disappear, appear, or change.  \nMovements to cover:  \n1.⁠ ⁠Slow zoom in  \n2.⁠ ⁠Slow zoom out  \n3.⁠ ⁠Smooth orbit (slight rotation around the property)  \n4.⁠ ⁠Walk-through style tracking shot (like moving smoothly with a handheld or GoPro, without shaking)  \n\nKeep the prompts short, clear, realistic, cinematic, and stabilized.  \nFocus only on camera motion – not on creating or changing objects.  \n\n# Example Outputs  \n1.⁠ ⁠Slow, smooth zoom-in on {{ $json.content }}, stabilized, ultra realistic.  \n2.⁠ ⁠Slow, smooth zoom-out revealing {{ $json.content }}, stabilized, ultra realistic.  \n3.⁠ ⁠Smooth, stabilized orbit shot rotating slightly around {{ $json.content }}, ultra realistic.  \n4.⁠ ⁠Smooth tracking shot moving alongside {{ $json.content }}, like walking with a GoPro, stabilized and realistic."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        480,
+        -80
+      ],
+      "id": "f75115df-9e0a-4f6a-af24-e01f3236c88c",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/kwaivgi/kling-v2.1-i2v-standard",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "duration",
+              "value": "5"
+            },
+            {
+              "name": "guidance_scale",
+              "value": "0.5"
+            },
+            {
+              "name": "image",
+              "value": "={{ $('Webhook').item.json.query.url }}"
+            },
+            {
+              "name": "negative_prompt",
+              "value": "blur, distort, and low quality"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        -80
+      ],
+      "id": "2275a9fb-0ab1-4d50-99bc-35915bf28e4a",
+      "name": "HTTP Request7",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2OSntGz5dp3CQQkJ",
+          "name": "WavespeedAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        112
+      ],
+      "id": "1ab3ac2b-31e6-441c-9bee-6d1863559774",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "9AQYYrY0yYIeV8lc",
+          "name": "robby - auto.ki"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"url\": \"{{ $json.data.outputs[0] }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2016,
+        -112
+      ],
+      "id": "91bc2100-e735-452e-a299-003f07dc1b81",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.auto.ki",
+            "user-agent": "axios/1.8.3",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "via": "1.1 Caddy",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.auto.ki",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {
+            "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757174400000/9QzJLU_FWcxunM187saLqw/oHBhPQgNDUqeE0qs7CGGUc_ATfiM19cxgFWbDsgKmtNKxI9upTAh2cZeFFDXSz9U1N2IApK7TSOrpaNjiCrqZPzz7aDjWqv73KutRmFqK5ieXQBN1jIf6p7oMbHpzh05SDy6Jv8OjI5r2gxtq_HyyQ/dRRnaYawzDDcQ6oHCG7rmwlszQnCH3f9hGl72jAqVfU"
+          },
+          "body": {},
+          "webhookUrl": "https://n8n.auto.ki/webhook/video-generation",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e90981b-505c-4b07-b415-33b62a176201",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f546839f299c51a88e8b3d2832263de6170e7a79249411aa709a3f44463c86d8"
+  },
+  "id": "iClcGdrYXH3mOp9d",
+  "tags": []
+}

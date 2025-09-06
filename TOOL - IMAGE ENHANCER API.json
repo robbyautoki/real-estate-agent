@@ -1,0 +1,280 @@
+{
+  "name": "TOOL - IMAGE ENHANCER API",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "image-enhancer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0f8cbf27-3da2-47aa-b1a8-75779e0c60a9",
+      "name": "Webhook",
+      "webhookId": "b1d38e0b-6c73-4fd1-a481-09b5a0a28b45"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.query.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "91fe2944-7d25-4613-9f1b-a332ad29ca81",
+      "name": "Download File"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "5dcad6c3-892a-46ca-bebc-2ab67b1012cd",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Image Enhancer').item.json.polling_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "f00f3911-6e71-4f3e-8594-33d7187cba98",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e7d2b65d-88e0-4735-ae28-6391fa243062",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "Pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "d6d768de-7fa2-47a8-8127-dc49ec73bce8",
+      "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1136,
+        208
+      ],
+      "id": "55b7222f-c264-420c-98ff-84bd3e26a3aa",
+      "name": "Wait1",
+      "webhookId": "45159497-51a1-4b45-a6e1-46b47a80cc2e"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"image_url\": \"{{ $json.result.sample }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1600,
+        -80
+      ],
+      "id": "b92ddf71-3d49-4cf8-866d-52765a9d2e77",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bfl.ai/v1/flux-kontext-pro",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"prompt\": \"Enhance this interior real estate photograph into a more polished, professional, and luxurious version while preserving the original room layout, camera angle, and lighting direction. Gently upgrade materials and textures—refine wood surfaces, smooth fabrics, polished stone, and clean walls—to appear more premium and tactile. Improve lighting dynamics by softening shadows and enhancing highlights for a balanced and inviting ambiance. Slightly adjust furniture design and decor to look higher-end but still believable within the context. Add elegant details such as tasteful cushions, minimalist art, or subtle ambient lighting. Preserve the original atmosphere but elevate its execution, creating a refined, realistic, and editorial-quality interior shot.\",\n    \"input_image\": \"{{ $json.data }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        736,
+        0
+      ],
+      "id": "92f48d0c-e02e-4cb2-90a9-7f7c885fa0da",
+      "name": "Image Enhancer",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "bEs4tV7Rd8F2ngf0",
+          "name": "BlackforestLabs"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.auto.ki",
+            "user-agent": "axios/1.8.3",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "via": "1.1 Caddy",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.auto.ki",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {
+            "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757167200000/eAT2J-6dsIwclATxnjZoJA/SHiMR5zTYquy00d5Mst8D7Pw8bfNaT8EUOVweVG5pf-9EfdxruE3DlVgtpjZHdXSVw1oQBj9n3WZNGmdoX6sUxQRcTiqpE_u2syLDWeWTEPCbZPvyllpvO-QmvZ68V7X9X9qTpcr4oCn55H8Ott_Ig/iY6mXb6zuZiVf9XME6yAmUNkHNVCgjfKZHHaxUVQdgE"
+          },
+          "body": {},
+          "webhookUrl": "https://n8n.auto.ki/webhook/image-enhancer",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Image Enhancer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Enhancer": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7a21df72-a115-44ee-a5ec-175849e9c903",
+  "meta": {
+    "instanceId": "f546839f299c51a88e8b3d2832263de6170e7a79249411aa709a3f44463c86d8"
+  },
+  "id": "ObP8GL2hvFK3VoHe",
+  "tags": []
+}
