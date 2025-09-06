@@ -1,0 +1,747 @@
+{
+  "name": "Merge Videos Base",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        1584
+      ],
+      "id": "e87feb76-c6b5-49cc-b5c2-87579f917562",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appIrgLfLlWj02kMF",
+          "mode": "list",
+          "cachedResultName": "Create Videos",
+          "cachedResultUrl": "https://airtable.com/appIrgLfLlWj02kMF"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblFT2fHULujp58M5",
+          "mode": "list",
+          "cachedResultName": "Generation",
+          "cachedResultUrl": "https://airtable.com/appIrgLfLlWj02kMF/tblFT2fHULujp58M5"
+        },
+        "id": "={{ $json.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        1584
+      ],
+      "id": "ef5cf9e9-3b15-4f69-ba9f-2a3b5a34bf99",
+      "name": "Get a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "2HODpzdZpmDtUm88",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        288,
+        640
+      ],
+      "id": "851ba728-a20e-43a2-83f4-bc735928e743",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "461a1a5c-bc45-4bb9-9563-42983f02fab6",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        640
+      ],
+      "id": "412044e5-af56-49be-845d-ec08dc39eaba",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-splitinbatches-advanced.splitInBatchesAdvanced",
+      "typeVersion": 1,
+      "position": [
+        752,
+        640
+      ],
+      "id": "766fbb4e-57f4-4cf0-8f4d-5d6f79ee591c",
+      "name": "SplitInBatches-Advanced"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.worldoflicense.de/webhook/merge-vdeos",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1104,
+        784
+      ],
+      "id": "6f7b343a-a82b-405c-93a6-f043f783de92",
+      "name": "Merge Video API"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        608
+      ],
+      "id": "34bce07e-a193-4c64-bcc4-2ea401065e6d",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "command": "# Erstelle eine Liste aller MP4 und MP3 Dateien im tmp Ordner\n(ls /tmp/*.mp4 2>/dev/null; ls /tmp/*.mp3 2>/dev/null) | sed \"s|.*|file '&'|\" > /tmp/filelist.txt"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        608
+      ],
+      "id": "a1da083b-dc0a-4687-82ee-21805fee96ae",
+      "name": "Create List"
+    },
+    {
+      "parameters": {
+        "command": "=cd /tmp\nls -1 *.mp4 | sort | awk '{print \"file '\\''\" $0 \"'\\''\"}' > filelist.txt\nffmpeg -f concat -safe 0 -i filelist.txt -c copy -movflags +faststart -an combined_video.mp4 -y"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        608
+      ],
+      "id": "ade07688-fbc0-44f4-9820-a0dd82f69bbb",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        1536
+      ],
+      "id": "08688a8e-1895-4ae7-9a1a-4d7c06ec9726",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "command": "rm -f /tmp/*.mp4 /tmp/*.avi /tmp/*.mov /tmp/*.mkv\nrm -f /tmp/*.jpg /tmp/*.jpeg /tmp/*.png /tmp/*.gif\nrm -f /tmp/*.txt /tmp/*.log\nrm -f /tmp/combined_video.mp4\nrm -f /tmp/combined_video.mp4\nrm -f /tmp/filelist.txt\n\necho \"Media files cleaned from /tmp\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        1536
+      ],
+      "id": "a4d3a731-dd38-4704-b553-938003c24f7d",
+      "name": "Execute Command1"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/tmp/combined_video.mp4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        384
+      ],
+      "id": "a23b1368-7271-43d8-bfcc-93ec675c1148",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "createvideostorage",
+        "fileName": "=finalvideo_{{ $execution.id}}.mp4",
+        "additionalFields": {
+          "acl": "publicRead"
+        }
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        464
+      ],
+      "id": "4e17e83a-8f72-44c9-8829-4aefbc2090c8",
+      "name": "Upload a file",
+      "credentials": {
+        "s3": {
+          "id": "F2plDjYNJoVBFDNG",
+          "name": "S3 account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "336d716d-c0a4-4353-ab48-56492adc8934",
+              "name": "url",
+              "value": "=https://createvideostorage.fra1.digitaloceanspaces.com/finalvideo_{{ $execution.id}}.mp4",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2272,
+        464
+      ],
+      "id": "f6cf422a-b610-4dd2-b639-23ac62fb4f2b",
+      "name": "Set URL"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2560,
+        512
+      ],
+      "id": "8845e1d9-c6d5-46ef-adde-a05b83b0aa09",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "command": "rm -f /tmp/*.mp4 /tmp/*.avi /tmp/*.mov /tmp/*.mkv\nrm -f /tmp/*.jpg /tmp/*.jpeg /tmp/*.png /tmp/*.gif\nrm -f /tmp/*.txt /tmp/*.log\nrm -f /tmp/combined_video.mp4\nrm -f /tmp/filelist.txt\nrm -f /tmp/new_voice_audio.mp3\nrm -f /tmp/voice_audio.mp3\n\necho \"Media files cleaned from /tmp\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        704
+      ],
+      "id": "a9fd8e33-5c09-4340-8c3f-6b608dd7b44a",
+      "name": "Daten löschen"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        208
+      ],
+      "id": "0772ff61-995f-425b-b3ef-3645ba947def",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "['Sound Dateien']",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        464,
+        288
+      ],
+      "id": "de33e6fd-c819-47ab-a17d-695aef647a66",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a94aed3b-b070-4154-8a9f-ac658ff39da0",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        208
+      ],
+      "id": "659687b8-96d3-4889-ade2-cd2a60fc5aa5",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/tmp/{{$itemIndex + 1}}.mp3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        208
+      ],
+      "id": "a842f553-cfba-422b-a0e2-3d9b4a9895d3",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appIrgLfLlWj02kMF",
+          "mode": "list",
+          "cachedResultName": "Create Videos",
+          "cachedResultUrl": "https://airtable.com/appIrgLfLlWj02kMF"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblmFpjJsTnjQJs4K",
+          "mode": "list",
+          "cachedResultName": "Sound Effekte",
+          "cachedResultUrl": "https://airtable.com/appIrgLfLlWj02kMF/tblmFpjJsTnjQJs4K"
+        },
+        "filterByFormula": "=RECORD_ID() = \"rechgE3sghSDu4fpd\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        336,
+        288
+      ],
+      "id": "3c05d639-4355-4df3-a383-56340d15be5a",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "2HODpzdZpmDtUm88",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "merge-videos-he",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        640
+      ],
+      "id": "c2ce3d1e-b5bb-48cf-aa0f-5edae41865c5",
+      "name": "Webhook",
+      "webhookId": "f1757016-de80-42ee-a2fc-2de756d62e56"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"url\": \"{{ $json.url }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2784,
+        512
+      ],
+      "id": "81430046-9e2a-4fa7-94dc-2f8f7c611f04",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "command": "rm -f /tmp/video-*.mp4 /tmp/output-*.mp4 /tmp/filelist*.txt /tmp/list-*.txt /tmp/voice-*.mp3\nrm -f /tmp/*.mp3\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -464
+      ],
+      "id": "e989f7c6-c2e6-4ad5-a4d8-d7b466a0e560",
+      "name": "Remove command"
+    },
+    {
+      "parameters": {
+        "command": "ls -lh /tmp\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -464
+      ],
+      "id": "bb23136b-b343-41f0-bb4e-5433dd98dec3",
+      "name": "Execute Command2"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "id": "recIvym78OEWBXVPW"
+        }
+      }
+    ],
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.worldoflicense.de",
+            "user-agent": "axios/1.8.3",
+            "content-length": "2211",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "via": "1.1 Caddy",
+            "x-forwarded-for": "139.59.158.167",
+            "x-forwarded-host": "n8n.worldoflicense.de",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {},
+          "body": [
+            {
+              "id": "attfAwkJQYNZVQhnc",
+              "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757181600000/dEKYife8hIChzTpf0eNx8Q/RkgYcwrdFlcbamhH5q3LKc1BN6WkOLGjwHvihcNo6ElEXhbyhC2YxFfZcOIK2Y9MQksNsU_GXnCRWb6pDD7IlPI1mPLmshi1TiF-R9a5-UkqRBM1r-nbXNsFSS7WXc08grdIWqrV07gZQX4dHvcLAg/0ij_TvxGWXSt_1lEDMynbAKSVU2HDGY7wxfnCEW8ODk",
+              "filename": "30cd7bc5-d601-4040-a893-3be83130517f-u2_4916a859-c6c3-4e17-af7d-c7356d58234f.mp4",
+              "size": 73911747,
+              "type": "video/mp4"
+            },
+            {
+              "id": "attigrG2yYkmPykeE",
+              "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757181600000/tfodI8HGd_MDEoggVv_Ydg/FH39WFn2g1GurCe_OsxSQOl6XrQm2pGrcBWIusbZrLIX34RLhedMSe5090HO31_aimhxfgJi6eiFi6_fefPTboum0ZR0bY3AEYEIuQDwxiSpvFGOlXT9XkPmJTTh_hp7CAIZ3EtIk6kAHfFvjxmV2w/PtiFH2sXh7knydLPDh1_5Hm-i0RW05-QLxE_XSUHTIE",
+              "filename": "a12ead27-5e61-4be3-8d2f-7399e596677b-u2_6c4d8511-9f78-43e1-9dc9-2c135369019f.mp4",
+              "size": 90443637,
+              "type": "video/mp4"
+            },
+            {
+              "id": "attfqjFb9jSLTpil0",
+              "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757181600000/jA9L2KglQLfeFnnD16b18A/1UqGq57x94oJOtWP5dHkcKP3YvNuuAWLwKpiidfBkPvkVFW35TExCErkOF73iIa1tzJrwM9gfpY1dJqYdpAlpNMVq4WPhfkLtc_IJ9K-VWcy6xrYnnbXjMUZy5Z5gaP3FI-ng9SCq5qlFhtPTVUTyQ/8npj5ItyurkJwsjg1xL886JbevBtV1iMQ_9WE12GCFI",
+              "filename": "b82f4167-cddf-4ab6-9377-d9a182d447d7-u2_e3d3a49f-7393-4811-901f-038afd878c2c.mp4",
+              "size": 12528671,
+              "type": "video/mp4"
+            },
+            {
+              "id": "attLEFPrxrZy2nh9e",
+              "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757181600000/MWAKOqH-0xQAjrb9PduImQ/dKMDyZusrOE82sjKhrrHpMqMGRUkgTJE7o8ELtY4zcGsD4qH1u_UH_KFlFvnzAT-xM7kmW5DGBoUUUjwrFwtvKr5j93E2BsR0H2oWKHzxo7sQPKl6mn_TaNfFubCdHVHRTUh9V4A_jxROFuC_nm-1w/pzM4bmRGYF0sx3j_eTLzcrJmAOqK8wtNxmomU1ytx84",
+              "filename": "5ab2ec3f-ad84-4e45-b0a1-c16f8d0c066c-u2_3de5d49a-0287-4949-b4ef-e8c256147960.mp4",
+              "size": 37607085,
+              "type": "video/mp4"
+            },
+            {
+              "id": "attWHdk2cj7ZXicNF",
+              "url": "https://v5.airtableusercontent.com/v3/u/45/45/1757181600000/ExB1QFggkgeF_kv5ocwz3g/tMTNy9FE76rjWZu6UfkpRVlaGnPXFsXZe_yGueURhdB8sgREicsk3COHtm9o-Vpiky-yV5DShV1BTroOpcn3w0got70vlwpMEGe3hUS6PdvB4d9d5dII-HCXP4KgpHmwQIIZgjXjRHg3tFOvOsPb6Q/A8gaoUGvtxQU0H2c1zJWM0rnBX57VnfJtowuIeNJHmI",
+              "filename": "2527b571-17d0-49a0-8e27-36b2a645700c-u1_85dc9a88-2a5a-4911-97b5-0207fc4e27c8.mp4",
+              "size": 24152082,
+              "type": "video/mp4"
+            }
+          ],
+          "webhookUrl": "https://n8n.worldoflicense.de/webhook/merge-videos-he",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a record": {
+      "main": [
+        []
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches-Advanced",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches-Advanced": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Video API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Video API": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches-Advanced",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Create List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create List": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Execute Command1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "Set URL",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Daten löschen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set URL": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daten löschen": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "e79bfd27-f983-490c-845e-a7131d6fd7cb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5648f753f39bde648bbf6b29c6e4cb095ff06d5ba72fffe469aa513c66396f8c"
+  },
+  "id": "OcCwEYQuBPyhZKKs",
+  "tags": []
+}
